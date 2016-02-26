@@ -30,6 +30,7 @@
 
 package com.synconset;
 
+import java.lang.Integer;
 import java.net.URI;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,6 +42,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.synconset.FakeR;
 import android.app.Activity;
@@ -96,7 +99,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     private static final int CURSORLOADER_THUMBS = 0;
     private static final int CURSORLOADER_REAL = 1;
 
-    private Map<String, Integer> fileNames = new HashMap<String, Integer>();
+    private TreeMap<String, Integer> fileNames = new TreeMap<String, Integer>();
 
     private SparseBooleanArray checkStatus = new SparseBooleanArray();
 

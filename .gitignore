@@ -11,4 +11,5 @@
 # Xcode 4
 xcuserdata/
 project.xcworkspace/
+src/android/.idea/
 tags
