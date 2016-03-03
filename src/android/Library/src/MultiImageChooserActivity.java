@@ -488,7 +488,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     }
     
     
-    private class ResizeImagesTask extends AsyncTask<ArrayList<BzImage>, Void, ArrayList<BzImage>> {
+    private class ResizeImagesTask extends AsyncTask<ArrayList<BzImage>, Void, ArrayList<String>> {
         private Exception asyncTaskError = null;
 
         @Override

@@ -49,11 +49,16 @@ public class BzImage {
     }
 
     public String toJSON() {
-        JSONObject obj = new JSONObject();
-        obj.put("fileName", getFileName());
-        obj.put("orientation", getOrientation());
-        obj.put("position", getPosition());
-        return obj.toString();
+        try {
+            JSONObject obj = new JSONObject();
+            obj.put("fileName", getFileName());
+            obj.put("orientation", getOrientation());
+            obj.put("position", getPosition());
+            return obj.toString();
+        }
+        catch (JSONException) {
+            return "{}";
+        }
     }
 
     public static BzImage getByName(ArrayList<BzImage> array, String name) {
