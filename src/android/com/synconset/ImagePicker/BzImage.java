@@ -1,4 +1,4 @@
-package com.synconset.BzImage;
+package com.synconset;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;

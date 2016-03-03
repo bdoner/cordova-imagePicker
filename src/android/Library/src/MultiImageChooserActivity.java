@@ -46,8 +46,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import com.synconset.FakeR;
-import com.synconset.BzImage;
+import com.synconset.*;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
