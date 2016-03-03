@@ -3,6 +3,7 @@
  */
 package com.synconset;
 
+import com.synconset.BzImage;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 
@@ -17,49 +18,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
-public class BzImage {
-    public BzImage(String fileName, Integer position, Integer rotation) {
-        setFileName(fileName);
-        setPosition(position);
-        setRotation(rotation);
-    }
-
-    private String _fileName;
-    public String getFileName() {
-        return _fileName;
-    }
-
-    public void setFileName(String value) {
-        _fileName = value;
-    }
-
-    private Integer _position;
-    public Integer getPosition() {
-        return _position;
-    }
-
-    public void setPosition(Integer value) {
-        _position = value;
-    }
-
-    private Integer _orientation;
-    public Integer getOrientation() {
-        return _orientation;
-    }
-
-    public void setOrientation(Integer value) {
-        _orientation = value;
-    }
-
-    public static BzImage getByName(ArrayList<BzImage> array, String name) {
-        for (Integer i = 0; i < array.size(); i++) {
-            if (array[i].getFileName().equals(name)) {
-                return array[i];
-            }
-        }
-        return null;
-    }
-}
 
 public class ImagePicker extends CordovaPlugin {
     public static String TAG = "ImagePicker";
@@ -101,7 +59,7 @@ public class ImagePicker extends CordovaPlugin {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == Activity.RESULT_OK && data != null) {
-            ArrayList<BzImage> fileNames = data.getStringArrayListExtra("MULTIPLEFILENAMES");
+            ArrayList<String> fileNames = data.getStringArrayListExtra("MULTIPLEFILENAMES");
             JSONArray res = new JSONArray(fileNames);
             this.callbackContext.success(res);
         } else if (resultCode == Activity.RESULT_CANCELED && data != null) {

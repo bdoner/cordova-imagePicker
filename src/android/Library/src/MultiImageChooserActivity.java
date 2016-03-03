@@ -31,6 +31,7 @@
 package com.synconset;
 
 import java.lang.Integer;
+import java.lang.Override;
 import java.net.URI;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -80,6 +81,8 @@ import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import org.json.JSONObject;
 
 public class MultiImageChooserActivity extends Activity implements OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ImagePicker";
@@ -204,7 +207,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             AlertDialog alert = builder.create();
             alert.show();
         } else if (isChecked) {
-            fileNames.put(new BzImage(name, positionCounter, new Integer(rotation)));
+            fileNames.add(new BzImage(name, positionCounter, new Integer(rotation)));
             if (maxImageCount == 1) {
                 this.selectClicked(null);
             } else {
@@ -490,16 +493,16 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         private Exception asyncTaskError = null;
 
         @Override
-        protected ArrayList<BzImage> doInBackground(ArrayList<BzImage>... fileNames) {
+        protected ArrayList<String> doInBackground(ArrayList<BzImage>... fileNames) {
             //Set<Entry<String, Integer>> fileNames = fileSets[0];
-            ArrayList<BzImage> al = new ArrayList<BzImage>();
+            ArrayList<String> al = new ArrayList<String>();
             try {
                 Iterator<BzImage> i = fileNames.iterator();
                 Bitmap bmp;
                 while(i.hasNext()) {
                     BzImage imageInfo = i.next();
                     File file = new File(imageInfo.getFileName());
-                    int rotate = imageInfo.getRotation().intValue();
+                    int rotate = imageInfo.getOrientation().intValue();
                     BitmapFactory.Options options = new BitmapFactory.Options();
                     options.inSampleSize = 1;
                     options.inJustDecodeBounds = true;
@@ -520,7 +523,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                             try {
                                 bmp = this.tryToGetBitmap(file, options, rotate, false);
                             } catch (OutOfMemoryError e2) {
-                                throw new IOException("Kunne ikke indlÃ¦se billederne.");
+                                throw new IOException("Kunne ikke indlæse billederne.");
                             }
                         }
                     } else {
@@ -544,25 +547,26 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                     }
 
                     file = this.storeImage(bmp, file.getName());
-                    al.add(new BzImage(Uri.fromFile(file).toString(), imageInfo.getRotation(), imageInfo.getPosition()));
+                    BzImage bzImage = new BzImage(Uri.fromFile(file).toString(), imageInfo.getOrientation(), imageInfo.getPosition());
+                    al.add(bzImage.toJSON());
                 }
                 return al;
             } catch(IOException e) {
                 try {
                     asyncTaskError = e;
                     for (int i = 0; i < al.size(); i++) {
-                        URI uri = new URI(al.get(i));
+                        URI uri = new URI(new JSONObject(al.get(i)).getString("fileName"));
                         File file = new File(uri);
                         file.delete();
                     }
                 } catch(Exception exception) {
                     // the finally does what we want to do
                 } finally {
-                    return new ArrayList<BzImage>();
+                    return new ArrayList<String>();
                 }
             }
         }
-        
+
         @Override
         protected void onPostExecute(ArrayList<String> al) {
             Intent data = new Intent();
@@ -574,7 +578,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 setResult(RESULT_CANCELED, data);
             } else if (al.size() > 0) {
                 Bundle res = new Bundle();
-                res.putStringArrayList("MULTIPLEFILENAMES", al);
+                res.put("MULTIPLEFILENAMES", al);
                 if (imagecursor != null) {
                     res.putInt("TOTALFILES", imagecursor.getCount());
                 }
@@ -596,7 +600,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 bmp = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
             }
             if (bmp == null) {
-                throw new IOException("Billedet kunne ikke Ã¥bnes.");
+                throw new IOException("Billedet kunne ikke åbnes.");
             }
             if (options != null && shouldScale) {
                 float scale = calculateScale(options.outWidth, options.outHeight);
