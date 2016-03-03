@@ -194,8 +194,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         if (maxImages == 0 && isChecked) {
             isChecked = false;
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("H�jst " + maxImageCount + " billeder");
-            builder.setMessage("Du m� H�jst v�lge " + maxImageCount + " billeder.");
+            builder.setTitle("Højst " + maxImageCount + " billeder");
+            builder.setMessage("Du må højst vælge " + maxImageCount + " billeder.");
             builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) { 
                     dialog.cancel();
@@ -486,7 +486,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     }
     
     
-    private class ResizeImagesTask extends AsyncTask<ArrayList<BzImage>>, Void, ArrayList<BzImage>> {
+    private class ResizeImagesTask extends AsyncTask<ArrayList<BzImage>, Void, ArrayList<BzImage>> {
         private Exception asyncTaskError = null;
 
         @Override
@@ -520,7 +520,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                             try {
                                 bmp = this.tryToGetBitmap(file, options, rotate, false);
                             } catch (OutOfMemoryError e2) {
-                                throw new IOException("Kunne ikke indlæse billederne.");
+                                throw new IOException("Kunne ikke indlÃ¦se billederne.");
                             }
                         }
                     } else {
@@ -537,7 +537,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                                 try {
                                     bmp = this.tryToGetBitmap(file, options, rotate, false);
                                 } catch (OutOfMemoryError e3) {
-                                    throw new IOException("Kunne ikke indlæse billederne.");
+                                    throw new IOException("Kunne ikke indlÃ¦se billederne.");
                                 }
                             }
                         }
@@ -596,7 +596,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 bmp = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
             }
             if (bmp == null) {
-                throw new IOException("Billedet kunne ikke åbnes.");
+                throw new IOException("Billedet kunne ikke Ã¥bnes.");
             }
             if (options != null && shouldScale) {
                 float scale = calculateScale(options.outWidth, options.outHeight);

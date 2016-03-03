@@ -30,7 +30,7 @@ public class BzImage {
     }
 
     public void setFileName(String value) {
-        _fileName = value
+        _fileName = value;
     }
 
     private Integer _position;
