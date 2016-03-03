@@ -16,50 +16,49 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
-public class BzImage(){
-public BzImage(String fileName,Integer position,Integer rotation)
-        {
+public class BzImage {
+    public BzImage(String fileName, Integer position, Integer rotation) {
         setFileName(fileName);
         setPosition(position);
         setRotation(rotation);
-        }
+    }
 
-private String _fileName;
-public getFileName(){
+    private String _fileName;
+    public getFileName() {
         return _fileName;
-        }
+    }
 
-public setFileName(String value){
-        _fileName=value
-        }
+    public setFileName(String value) {
+        _fileName = value
+    }
 
-private Integer _position;
-public getPosition(){
+    private Integer _position;
+    public getPosition() {
         return _position;
-        }
+    }
 
-public setPosition(Integer value){
-        _position=value;
-        }
+    public setPosition(Integer value) {
+        _position = value;
+    }
 
-private Integer _orientation;
-public getOrientation(){
+    private Integer _orientation;
+    public getOrientation() {
         return _orientation;
-        }
+    }
 
-public setOrientation(Integer value){
-        _orientation=value;
-        }
+    public setOrientation(Integer value) {
+        _orientation = value;
+    }
 
-public static BzImage getByName(ArrayList<BzImage>array,String name){
-        for(Integer i=0;i<array.size();i++){
-        if(array[i].getFileName().equals(name)){
-        return array[i];
-        }
+    public static BzImage getByName(ArrayList<BzImage> array, String name) {
+        for (Integer i = 0; i < array.size(); i++) {
+            if (array[i].getFileName().equals(name)) {
+                return array[i];
+            }
         }
         return null;
-        }
-        }
+    }
+}
 
 public class ImagePicker extends CordovaPlugin {
     public static String TAG = "ImagePicker";
