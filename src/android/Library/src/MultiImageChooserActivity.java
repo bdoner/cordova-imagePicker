@@ -577,7 +577,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 setResult(RESULT_CANCELED, data);
             } else if (al.size() > 0) {
                 Bundle res = new Bundle();
-                res.put("MULTIPLEFILENAMES", al);
+                res.putStringArrayList("MULTIPLEFILENAMES", al);
                 if (imagecursor != null) {
                     res.putInt("TOTALFILES", imagecursor.getCount());
                 }
