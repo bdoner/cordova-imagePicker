@@ -3,7 +3,6 @@
  */
 package com.synconset;
 
-import com.synconset.BzImage;
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaPlugin;
 

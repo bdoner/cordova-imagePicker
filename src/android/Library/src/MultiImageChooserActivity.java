@@ -540,7 +540,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                                 try {
                                     bmp = this.tryToGetBitmap(file, options, rotate, false);
                                 } catch (OutOfMemoryError e3) {
-                                    throw new IOException("Kunne ikke indlÃ¦se billederne.");
+                                    throw new IOException("Kunne ikke indlæse billederne.");
                                 }
                             }
                         }
