@@ -56,7 +56,7 @@ public class BzImage {
             obj.put("position", getPosition());
             return obj.toString();
         }
-        catch (JSONException) {
+        catch (JSONException ex) {
             return "{}";
         }
     }
