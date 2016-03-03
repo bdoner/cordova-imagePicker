@@ -27,7 +27,7 @@ public class ImagePicker extends CordovaPlugin {
 		 this.params = args.getJSONObject(0);
 		if (action.equals("getPictures")) {
 			Intent intent = new Intent(cordova.getActivity(), MultiImageChooserActivity.class);
-			int max = 20;
+			int max = -1;
 			int desiredWidth = 0;
 			int desiredHeight = 0;
 			int quality = 100;
