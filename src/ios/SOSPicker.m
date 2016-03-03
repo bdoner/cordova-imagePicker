@@ -27,7 +27,7 @@
 
 	// Create the an album controller and image picker
 	ELCAlbumPickerController *albumController = [[ELCAlbumPickerController alloc] init];
-	
+
 	if (maximumImagesCount == 1) {
       albumController.immediateReturn = true;
       albumController.singleSelection = true;
@@ -35,7 +35,7 @@
       albumController.immediateReturn = false;
       albumController.singleSelection = false;
    }
-   
+
    ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initWithRootViewController:albumController];
    imagePicker.maximumImagesCount = maximumImagesCount;
    imagePicker.returnsOriginalImage = 1;
@@ -61,6 +61,7 @@
     ALAsset* asset = nil;
     UIImageOrientation orientation = UIImageOrientationUp;;
     CGSize targetSize = CGSizeMake(self.width, self.height);
+		int counter = 1;
 	for (NSDictionary *dict in info) {
         asset = [dict objectForKey:@"ALAsset"];
         // From ELCImagePickerController.m
@@ -69,11 +70,11 @@
         do {
             filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, @"jpg"];
         } while ([fileMgr fileExistsAtPath:filePath]);
-        
+
         @autoreleasepool {
             ALAssetRepresentation *assetRep = [asset defaultRepresentation];
             CGImageRef imgRef = NULL;
-            
+
             //defaultRepresentation returns image as it appears in photo picker, rotated and sized,
             //so use UIImageOrientationUp when creating our image below.
             if (picker.returnsOriginalImage) {
@@ -82,7 +83,7 @@
             } else {
                 imgRef = [assetRep fullScreenImage];
             }
-            
+
             UIImage* image = [UIImage imageWithCGImage:imgRef scale:1.0f orientation:orientation];
             if (self.width == 0 && self.height == 0) {
                 data = UIImageJPEGRepresentation(image, self.quality/100.0f);
@@ -90,17 +91,32 @@
                 UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toSize:targetSize];
                 data = UIImageJPEGRepresentation(scaledImage, self.quality/100.0f);
             }
-            
+
             if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
                 result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
                 break;
             } else {
-                [resultStrings addObject:[[NSURL fileURLWithPath:filePath] absoluteString]];
+
+								NSMutableDictionary * json = [NSMutableDictionary dictionary];
+								[json setObject:[[NSURL fileURLWithPath:filePath] absoluteString] forKey:@"fileName"];
+								[json setObject:[NSString stringWithFormat:@"%d", counter++] forKey:@"position"];
+     						NSData *jsonData = [NSJSONSerialization dataWithJSONObject:json
+                                                   options:(NSJSONWritingOptions)(prettyPrint ? NSJSONWritingPrettyPrinted : 0)
+                                                     error:&err];
+
+								if(!jsonData)
+								{
+									result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
+									break;
+								}
+								[resultStrings addObject:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
+
+                //[resultStrings addObject:[[NSURL fileURLWithPath:filePath] absoluteString]];
             }
         }
 
 	}
-	
+
 	if (nil == result) {
 		result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
 	}
