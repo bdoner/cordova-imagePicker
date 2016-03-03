@@ -492,8 +492,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         private Exception asyncTaskError = null;
 
         @Override
-        protected ArrayList<String> doInBackground(ArrayList<BzImage> fileNames) {
-            //Set<Entry<String, Integer>> fileNames = fileSets[0];
+        protected ArrayList<String> doInBackground(ArrayList<BzImage>... fileNamesArray) {
+            ArrayList<BzImage> fileNames = fileNamesArray[0];
             ArrayList<String> al = new ArrayList<String>();
             try {
                 Iterator<BzImage> i = fileNames.iterator();
