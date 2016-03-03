@@ -15,10 +15,10 @@ import android.content.Intent;
 import android.util.Log;
 
 public class BzImage {
-    public BzImage(String fileName, Integer position, Integer rotation) {
+    public BzImage(String fileName, Integer orientation, Integer position) {
         setFileName(fileName);
         setPosition(position);
-        setOrientation(rotation);
+        setOrientation(orientation);
     }
 
     private String _fileName;
