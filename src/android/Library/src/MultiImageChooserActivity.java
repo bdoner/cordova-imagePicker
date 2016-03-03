@@ -206,7 +206,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             AlertDialog alert = builder.create();
             alert.show();
         } else if (isChecked) {
-            fileNames.add(new BzImage(name, positionCounter, new Integer(rotation)));
+            fileNames.add(new BzImage(name, new Integer(rotation), positionCounter));
             if (maxImageCount == 1) {
                 this.selectClicked(null);
             } else {
