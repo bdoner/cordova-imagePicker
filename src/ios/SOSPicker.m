@@ -101,7 +101,7 @@
 								[json setObject:[[NSURL fileURLWithPath:filePath] absoluteString] forKey:@"fileName"];
 								[json setObject:[NSString stringWithFormat:@"%d", counter++] forKey:@"position"];
      						NSData *jsonData = [NSJSONSerialization dataWithJSONObject:json
-                                                   options:(NSJSONWritingOptions)(prettyPrint ? NSJSONWritingPrettyPrinted : 0)
+                                                   options:0
                                                      error:&err];
 
 								if(!jsonData)
