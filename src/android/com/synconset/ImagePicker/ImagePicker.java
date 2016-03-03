@@ -10,6 +10,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.Integer;
 import java.util.ArrayList;
 
 import android.app.Activity;
@@ -24,29 +25,29 @@ public class BzImage {
     }
 
     private String _fileName;
-    public getFileName() {
+    public String getFileName() {
         return _fileName;
     }
 
-    public setFileName(String value) {
+    public void setFileName(String value) {
         _fileName = value
     }
 
     private Integer _position;
-    public getPosition() {
+    public Integer getPosition() {
         return _position;
     }
 
-    public setPosition(Integer value) {
+    public void setPosition(Integer value) {
         _position = value;
     }
 
     private Integer _orientation;
-    public getOrientation() {
+    public Integer getOrientation() {
         return _orientation;
     }
 
-    public setOrientation(Integer value) {
+    public void setOrientation(Integer value) {
         _orientation = value;
     }
 
