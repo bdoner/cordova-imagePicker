@@ -117,7 +117,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
     private final ImageFetcher fetcher = new ImageFetcher();
 
-    private int selectedColor = 0xffE1FF91;
+    private int selectedColor = 0xff26E008;
     private boolean shouldRequestThumb = true;
     
     private FakeR fakeR;
