@@ -436,12 +436,6 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
         public ImageAdapter(Context context) {
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//            Bitmap tmpHolderBitmap = BitmapFactory.decodeResource(getResources(), fakeR.getId("drawable", "loading_icon"));
-//            mPlaceHolderBitmap = Bitmap.createScaledBitmap(tmpHolderBitmap, colWidth, colWidth, false);
-//            if (tmpHolderBitmap != mPlaceHolderBitmap) {
-//                tmpHolderBitmap.recycle();
-//                tmpHolderBitmap = null;
-//            }
         }
 
         public int getCount() {
@@ -472,17 +466,9 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 layoutParams.width = colWidth;
                 viewHolder.thumbImageView.setLayoutParams(layoutParams);
                 convertView.setTag(viewHolder);
-            }else {
+            } else {
                 viewHolder = (GridCell)convertView.getTag();
             }
-
-//            if (convertView == null) {
-//                ImageView temp = new SquareImageView(MultiImageChooserActivity.this);
-//                temp.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-//                convertView = (View)temp;
-//            }
-
-            //ImageView imageView = (ImageView)convertView;
             viewHolder.thumbImageView.setImageBitmap(null);
 
             final int position = pos;
@@ -537,75 +523,79 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         protected ArrayList<String> doInBackground(ArrayList<BzImage>... fileNamesArray) {
             ArrayList<BzImage> fileNames = fileNamesArray[0];
             ArrayList<String> al = new ArrayList<String>();
-            try {
-                Iterator<BzImage> i = fileNames.iterator();
-                Bitmap bmp;
-                while (i.hasNext()) {
-                    BzImage imageInfo = i.next();
-                    File file = new File(imageInfo.getFileName());
-                    int rotate = imageInfo.getOrientation().intValue();
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inSampleSize = 1;
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-                    int width = options.outWidth;
-                    int height = options.outHeight;
-                    float scale = calculateScale(width, height);
-                    if (scale < 1) {
-                        int finalWidth = (int) (width * scale);
-                        int finalHeight = (int) (height * scale);
-                        int inSampleSize = calculateInSampleSize(options, finalWidth, finalHeight);
-                        options = new BitmapFactory.Options();
-                        options.inSampleSize = inSampleSize;
-                        try {
-                            bmp = this.tryToGetBitmap(file, options, rotate, true);
-                        } catch (OutOfMemoryError e) {
-                            options.inSampleSize = calculateNextSampleSize(options.inSampleSize);
-                            try {
-                                bmp = this.tryToGetBitmap(file, options, rotate, false);
-                            } catch (OutOfMemoryError e2) {
-                                throw new IOException("Kunne ikke indlæse billederne.");
-                            }
-                        }
-                    } else {
-                        try {
-                            bmp = this.tryToGetBitmap(file, null, rotate, false);
-                        } catch (OutOfMemoryError e) {
-                            options = new BitmapFactory.Options();
-                            options.inSampleSize = 2;
-                            try {
-                                bmp = this.tryToGetBitmap(file, options, rotate, false);
-                            } catch (OutOfMemoryError e2) {
-                                options = new BitmapFactory.Options();
-                                options.inSampleSize = 4;
-                                try {
-                                    bmp = this.tryToGetBitmap(file, options, rotate, false);
-                                } catch (OutOfMemoryError e3) {
-                                    throw new IOException("Kunne ikke indlæse billederne.");
-                                }
-                            }
-                        }
-                    }
-
-                    file = this.storeImage(bmp, file.getName());
-                    BzImage bzImage = new BzImage(Uri.fromFile(file).toString(), imageInfo.getOrientation(), imageInfo.getPosition());
-                    al.add(bzImage.toJSON());
-                }
-                return al;
-            } catch (IOException e) {
-                try {
-                    asyncTaskError = e;
-                    for (int i = 0; i < al.size(); i++) {
-                        URI uri = new URI(new JSONObject(al.get(i)).getString("fileName"));
-                        File file = new File(uri);
-                        file.delete();
-                    }
-                } catch (Exception exception) {
-                    // the finally does what we want to do
-                } finally {
-                    return new ArrayList<String>();
-                }
+            for(BzImage bzImage : fileNames) {
+                al.add(bzImage.toJSON());
             }
+            return al;
+//            try {
+//                Iterator<BzImage> i = fileNames.iterator();
+//                Bitmap bmp;
+//                while (i.hasNext()) {
+//                    BzImage imageInfo = i.next();
+//                    File file = new File(imageInfo.getFileName());
+//                    int rotate = imageInfo.getOrientation().intValue();
+//                    BitmapFactory.Options options = new BitmapFactory.Options();
+//                    options.inSampleSize = 1;
+//                    options.inJustDecodeBounds = true;
+//                    BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+//                    int width = options.outWidth;
+//                    int height = options.outHeight;
+//                    float scale = calculateScale(width, height);
+//                    if (scale < 1) {
+//                        int finalWidth = (int) (width * scale);
+//                        int finalHeight = (int) (height * scale);
+//                        int inSampleSize = calculateInSampleSize(options, finalWidth, finalHeight);
+//                        options = new BitmapFactory.Options();
+//                        options.inSampleSize = inSampleSize;
+//                        try {
+//                            bmp = this.tryToGetBitmap(file, options, rotate, true);
+//                        } catch (OutOfMemoryError e) {
+//                            options.inSampleSize = calculateNextSampleSize(options.inSampleSize);
+//                            try {
+//                                bmp = this.tryToGetBitmap(file, options, rotate, false);
+//                            } catch (OutOfMemoryError e2) {
+//                                throw new IOException("Kunne ikke indlæse billederne.");
+//                            }
+//                        }
+//                    } else {
+//                        try {
+//                            bmp = this.tryToGetBitmap(file, null, rotate, false);
+//                        } catch (OutOfMemoryError e) {
+//                            options = new BitmapFactory.Options();
+//                            options.inSampleSize = 2;
+//                            try {
+//                                bmp = this.tryToGetBitmap(file, options, rotate, false);
+//                            } catch (OutOfMemoryError e2) {
+//                                options = new BitmapFactory.Options();
+//                                options.inSampleSize = 4;
+//                                try {
+//                                    bmp = this.tryToGetBitmap(file, options, rotate, false);
+//                                } catch (OutOfMemoryError e3) {
+//                                    throw new IOException("Kunne ikke indlæse billederne.");
+//                                }
+//                            }
+//                        }
+//                    }
+//
+//                    file = this.storeImage(bmp, file.getName());
+//                    BzImage bzImage = new BzImage(Uri.fromFile(file).toString(), imageInfo.getOrientation(), imageInfo.getPosition());
+//                    al.add(bzImage.toJSON());
+//                }
+//                return al;
+//            } catch (IOException e) {
+//                try {
+//                    asyncTaskError = e;
+//                    for (int i = 0; i < al.size(); i++) {
+//                        URI uri = new URI(new JSONObject(al.get(i)).getString("fileName"));
+//                        File file = new File(uri);
+//                        file.delete();
+//                    }
+//                } catch (Exception exception) {
+//                    // the finally does what we want to do
+//                } finally {
+//                    return new ArrayList<String>();
+//                }
+//            }
         }
 
         @Override
@@ -632,7 +622,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             progress.dismiss();
             finish();
         }
-
+/*
         private Bitmap tryToGetBitmap(File file, BitmapFactory.Options options, int rotate, boolean shouldScale) throws IOException, OutOfMemoryError {
             Bitmap bmp;
             if (options == null) {
@@ -654,7 +644,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             }
             return bmp;
         }
-
+*/
         /*
         * The following functions are originally from
         * https://github.com/raananw/PhoneGap-Image-Resizer
@@ -664,6 +654,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         * The software is open source, MIT Licensed.
         * Copyright (C) 2012, webXells GmbH All Rights Reserved.
         */
+        /*
         private File storeImage(Bitmap bmp, String fileName) throws IOException {
             int index = fileName.lastIndexOf('.');
             String name = fileName.substring(0, index);
@@ -691,8 +682,9 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
             return resizedBitmap;
         }
+        */
     }
-
+/*
     private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
@@ -744,4 +736,5 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
         return scale;
     }
+    */
 }
