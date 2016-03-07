@@ -1,0 +1,23 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/grid_cell"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/thumbImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/positionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/thumbImageView"
+        android:layout_alignBottom="@+id/thumbImageView"
+        android:layout_margin="1dp"
+        android:gravity="right"
+        android:text="Hello"
+        android:textColor="#000000" />
+
+    </RelativeLayout>

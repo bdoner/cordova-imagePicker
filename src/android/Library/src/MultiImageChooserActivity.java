@@ -143,7 +143,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         
         colWidth = width / 4;
 
-        gridView = (GridView) findViewById(fakeR.getId("id", "gridview"));
+        gridView = (GridView)findViewById(fakeR.getId("id", "gridview"));
         gridView.setOnItemClickListener(this);
         gridView.setOnScrollListener(new OnScrollListener() {
             private int lastFirstItem = 0;
@@ -206,29 +206,42 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             AlertDialog alert = builder.create();
             alert.show();
         } else if (isChecked) {
+            //TODO: Save view with BzImage
             fileNames.add(new BzImage(name, new Integer(rotation), positionCounter));
             if (maxImageCount == 1) {
                 this.selectClicked(null);
             } else {
                 positionCounter++;
                 maxImages--;
-                ImageView imageView = (ImageView)view;
+                GridCell cell = (GridCell)view.getTag();
                 if (android.os.Build.VERSION.SDK_INT>=16) {
-                  imageView.setImageAlpha(128);
+                  cell.thumbImageView.setImageAlpha(128);
                 } else {
-                  imageView.setAlpha(128);
+                    cell.thumbImageView.setAlpha(128);
                 }
-                view.setBackgroundColor(selectedColor);
+                //TODO: Add TextView to view with positionCounter as text
+
             }
         } else {
             fileNames.remove(BzImage.getByName(fileNames, name));
+            /*
+            Collections.sort(players, new Comparator<HockeyPlayer>() {
+                @Override public int compare(HockeyPlayer p1, HockeyPlayer p2) {
+                    return p1.goalsScored - p2.goalsScored; // Ascending
+                }
+
+            });
+             */
+            //TODO: Re-number fileNames
+            //TODO: Redraw numbers
+            //TODO: Update positionCounter
             positionCounter--;
             maxImages++;
-            ImageView imageView = (ImageView)view;
+            GridCell cell = (GridCell)view;
             if (android.os.Build.VERSION.SDK_INT>=16) {
-                imageView.setImageAlpha(255);
+                cell.thumbImageView.setImageAlpha(255);
             } else {
-                imageView.setAlpha(255);
+                cell.thumbImageView.setAlpha(255);
             }
             view.setBackgroundColor(Color.TRANSPARENT);
         }
@@ -410,18 +423,29 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             super.onMeasure(widthMeasureSpec, widthMeasureSpec);
         }
     }
-    
+
+    private class GridCell {
+        public TextView positionTextView;
+        public ImageView thumbImageView;
+
+        public GridCell(View container) {
+            thumbImageView = (ImageView)findViewById(fakeR.getId("id", "thumbImageView"));// R.id.thumbImageView);
+            positionTextView = (TextView)findViewById(fakeR.getId("id", "positionTextView")); // R.id.positionTextView);
+        }
+    }
     
     private class ImageAdapter extends BaseAdapter {
-        private final Bitmap mPlaceHolderBitmap;
+        //private final Bitmap mPlaceHolderBitmap;
+        private final LayoutInflater inflater;
 
-        public ImageAdapter(Context c) {
-            Bitmap tmpHolderBitmap = BitmapFactory.decodeResource(getResources(), fakeR.getId("drawable", "loading_icon"));
-            mPlaceHolderBitmap = Bitmap.createScaledBitmap(tmpHolderBitmap, colWidth, colWidth, false);
-            if (tmpHolderBitmap != mPlaceHolderBitmap) {
-                tmpHolderBitmap.recycle();
-                tmpHolderBitmap = null;
-            }
+        public ImageAdapter(Context context) {
+            inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//            Bitmap tmpHolderBitmap = BitmapFactory.decodeResource(getResources(), fakeR.getId("drawable", "loading_icon"));
+//            mPlaceHolderBitmap = Bitmap.createScaledBitmap(tmpHolderBitmap, colWidth, colWidth, false);
+//            if (tmpHolderBitmap != mPlaceHolderBitmap) {
+//                tmpHolderBitmap.recycle();
+//                tmpHolderBitmap = null;
+//            }
         }
 
         public int getCount() {
@@ -443,47 +467,51 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         // create a new ImageView for each item referenced by the Adapter
         public View getView(int pos, View convertView, ViewGroup parent) {
 
-            if (convertView == null) {
-                ImageView temp = new SquareImageView(MultiImageChooserActivity.this);
-                temp.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                convertView = (View)temp;
-            }
+            convertView = inflater.inflate(fakeR.getId("layout", "grid_cell"));
+            GridCell cell = new GridCell(convertView);
+            convertView.setTag(cell);
 
-            ImageView imageView = (ImageView)convertView;
-            imageView.setImageBitmap(null);
+//            if (convertView == null) {
+//                ImageView temp = new SquareImageView(MultiImageChooserActivity.this);
+//                temp.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
+//                convertView = (View)temp;
+//            }
+
+            //ImageView imageView = (ImageView)convertView;
+            cell.thumbImageView.setImageBitmap(null);
 
             final int position = pos;
 
             if (!imagecursor.moveToPosition(position)) {
-                return imageView;
+                return cell;
             }
 
             if (image_column_index == -1) {
-                return imageView;
+                return cell;
             }
 
             final int id = imagecursor.getInt(image_column_index);
             final int rotate = imagecursor.getInt(image_column_orientation);
             if (isChecked(pos)) {
                 if (android.os.Build.VERSION.SDK_INT>=16) {
-                  imageView.setImageAlpha(128);
+                    cell.thumbImageView.setImageAlpha(128);
                 } else {
-                  imageView.setAlpha(128);	
+                    cell.thumbImageView.setAlpha(128);
                 }
-                imageView.setBackgroundColor(selectedColor);
+                cell.thumbImageView.setBackgroundColor(selectedColor);
             } else {
                 if (android.os.Build.VERSION.SDK_INT>=16) {
-                  imageView.setImageAlpha(255);
+                    cell.thumbImageView.setImageAlpha(255);
                 } else {
-                  imageView.setAlpha(255);	
+                    cell.thumbImageView.setAlpha(255);
                 }
-                imageView.setBackgroundColor(Color.TRANSPARENT);
+                cell.thumbImageView.setBackgroundColor(Color.TRANSPARENT);
             }
             if (shouldRequestThumb) {
-                fetcher.fetch(Integer.valueOf(id), imageView, colWidth, rotate);
+                fetcher.fetch(Integer.valueOf(id), cell.thumbImageView, colWidth, rotate);
             }
 
-            return imageView;
+            return convertView;
         }
     }
     
