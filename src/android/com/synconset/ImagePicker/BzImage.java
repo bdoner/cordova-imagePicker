@@ -13,19 +13,25 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
 
 public class BzImage {
     public BzImage(String fileName, Integer orientation, Integer position) {
         setFileName(fileName);
         setPosition(position);
         setOrientation(orientation);
+        //setView(cell);
     }
+
+//    private View _view;
+//    public View getView() { return _view; }
+//    public void setView(View value) { _view = value; }
 
     private String _fileName;
     public String getFileName() {
         return _fileName;
     }
-
     public void setFileName(String value) {
         _fileName = value;
     }
@@ -34,7 +40,6 @@ public class BzImage {
     public Integer getPosition() {
         return _position;
     }
-
     public void setPosition(Integer value) {
         _position = value;
     }
@@ -43,7 +48,6 @@ public class BzImage {
     public Integer getOrientation() {
         return _orientation;
     }
-
     public void setOrientation(Integer value) {
         _orientation = value;
     }
