@@ -1,6 +1,16 @@
 cordova-imagePicker
 ===================
 
+## What's different from the original plugin?
+
+This fork differ from the original plugin with a few added features/changes which are;
+* No resizing, which means no processing and faster flow (and only full-size images with no compression/quality loss).
+* [Ordered numbers when selecting images from the grid.](//i.imgur.com/pntX2uc.jpg)
+* Return a list of JSON objects `{fileName, orientation, position}` instead of just filenames.
+* Ohh, and it's in danish! (English strings can be found in the [original repo](https://github.com/wymsee/cordova-imagePicker))
+
+
+
 Cordova Plugin For Multiple Image Selection - implemented for iOS and Android 4.0 and above.
 
 ## Installing the plugin
@@ -8,9 +18,9 @@ Cordova Plugin For Multiple Image Selection - implemented for iOS and Android 4.
 The plugin conforms to the Cordova plugin specification, it can be installed
 using the Cordova / Phonegap command line interface.
 
-    phonegap plugin add cordova-plugin-image-picker
+    phonegap plugin add https://github.com/bdoner/cordova-imagePicker.git
 
-    cordova plugin add cordova-plugin-image-picker
+    cordova plugin add https://github.com/bdoner/cordova-imagePicker.git
 
 
 ## Using the plugin
@@ -22,7 +32,9 @@ Example - Get Full Size Images (all default options):
 window.imagePicker.getPictures(
 	function(results) {
 		for (var i = 0; i < results.length; i++) {
-			console.log('Image URI: ' + results[i]);
+			console.log('Image URI: ' + results[i].fileName);
+			console.log('Orientation : ' + results[i].orientation);
+			console.log('Selected in order: ' + results[i].position);
 		}
 	}, function (error) {
 		console.log('Error: ' + error);
@@ -30,18 +42,19 @@ window.imagePicker.getPictures(
 );
 ```
 
-Example - Get at most 10 images scaled to width of 800:
+Example - Get at most 10 images:
 ```javascript
 window.imagePicker.getPictures(
 	function(results) {
 		for (var i = 0; i < results.length; i++) {
-			console.log('Image URI: ' + results[i]);
+			console.log('Image URI: ' + results[i].fileName);
+			console.log('Orientation : ' + results[i].orientation);
+			console.log('Selected in order: ' + results[i].position);
 		}
 	}, function (error) {
 		console.log('Error: ' + error);
 	}, {
-		maximumImagesCount: 10,
-		width: 800
+		maximumImagesCount: 10
 	}
 );
 ```
@@ -51,18 +64,7 @@ window.imagePicker.getPictures(
     options = {
         // max images to be selected, defaults to 15. If this is set to 1, upon
     	// selection of a single image, the plugin will return it.
-    	maximumImagesCount: int,
-    	
-    	// max width and height to allow the images to be.  Will keep aspect
-    	// ratio no matter what.  So if both are 800, the returned image
-    	// will be at most 800 pixels wide and 800 pixels tall.  If the width is
-    	// 800 and height 0 the image will be 800 pixels wide if the source
-    	// is at least that wide.
-    	width: int,
-    	height: int,
-    	
-    	// quality of resized image, defaults to 100
-    	quality: int (0-100)
+    	maximumImagesCount: int
     };
     
 ### Note for Android Use
