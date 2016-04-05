@@ -65,13 +65,17 @@
 		</config-file>
 
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
-		    <activity android:label="@string/multi_app_name" android:name="com.synconset.MultiImageChooserActivity" android:theme="@android:style/Theme.Holo.Light">
-            </activity>
+		    <activity android:label="@string/multi_app_name" 
+		    	android:name="com.synconset.MultiImageChooserActivity"
+		    	android:orientation="portrait">
+		    </activity>
 		</config-file>
 
 		<config-file target="AndroidManifest.xml" parent="/manifest">
 		    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 		</config-file>
+		
+		
 
     <source-file src="src/android/com/synconset/ImagePicker/SquareImageView.java" target-dir="src/com/synconset" />
 		<source-file src="src/android/com/synconset/ImagePicker/BzImage.java" target-dir="src/com/synconset" />
