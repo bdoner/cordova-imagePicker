@@ -60,6 +60,7 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -67,8 +68,11 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Display;
@@ -86,6 +90,8 @@ import android.widget.TextView;
 
 import org.json.JSONObject;
 
+import dk.bazoom.horseclassifieds.Manifest;
+
 public class MultiImageChooserActivity extends Activity implements OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ImagePicker";
 
@@ -101,6 +107,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     private int image_column_index, image_column_orientation, actual_image_column_index, orientation_column_index;
     private int colWidth;
 
+    private static final int READ_EXTERNAL_STORAGE_PERMISSION = 0xC001;
     private static final int CURSORLOADER_THUMBS = 0;
     private static final int CURSORLOADER_REAL = 1;
 
@@ -130,6 +137,51 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        
+        //https://developer.android.com/training/permissions/requesting.html
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+            if (permissionCheck == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        READ_EXTERNAL_STORAGE_PERMISSION);
+            }
+            else {
+                InitializePlugin();
+            }
+        }
+        else {
+            InitializePlugin();
+        }
+
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case READ_EXTERNAL_STORAGE_PERMISSION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    InitializePlugin();
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    finish();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
+    private void InitializePlugin() {
         fakeR = new FakeR(this);
         setContentView(fakeR.getId("layout", "multiselectorgrid"));
         fileNames.clear();
@@ -527,75 +579,6 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 al.add(bzImage.toJSON());
             }
             return al;
-//            try {
-//                Iterator<BzImage> i = fileNames.iterator();
-//                Bitmap bmp;
-//                while (i.hasNext()) {
-//                    BzImage imageInfo = i.next();
-//                    File file = new File(imageInfo.getFileName());
-//                    int rotate = imageInfo.getOrientation().intValue();
-//                    BitmapFactory.Options options = new BitmapFactory.Options();
-//                    options.inSampleSize = 1;
-//                    options.inJustDecodeBounds = true;
-//                    BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-//                    int width = options.outWidth;
-//                    int height = options.outHeight;
-//                    float scale = calculateScale(width, height);
-//                    if (scale < 1) {
-//                        int finalWidth = (int) (width * scale);
-//                        int finalHeight = (int) (height * scale);
-//                        int inSampleSize = calculateInSampleSize(options, finalWidth, finalHeight);
-//                        options = new BitmapFactory.Options();
-//                        options.inSampleSize = inSampleSize;
-//                        try {
-//                            bmp = this.tryToGetBitmap(file, options, rotate, true);
-//                        } catch (OutOfMemoryError e) {
-//                            options.inSampleSize = calculateNextSampleSize(options.inSampleSize);
-//                            try {
-//                                bmp = this.tryToGetBitmap(file, options, rotate, false);
-//                            } catch (OutOfMemoryError e2) {
-//                                throw new IOException("Kunne ikke indlæse billederne.");
-//                            }
-//                        }
-//                    } else {
-//                        try {
-//                            bmp = this.tryToGetBitmap(file, null, rotate, false);
-//                        } catch (OutOfMemoryError e) {
-//                            options = new BitmapFactory.Options();
-//                            options.inSampleSize = 2;
-//                            try {
-//                                bmp = this.tryToGetBitmap(file, options, rotate, false);
-//                            } catch (OutOfMemoryError e2) {
-//                                options = new BitmapFactory.Options();
-//                                options.inSampleSize = 4;
-//                                try {
-//                                    bmp = this.tryToGetBitmap(file, options, rotate, false);
-//                                } catch (OutOfMemoryError e3) {
-//                                    throw new IOException("Kunne ikke indlæse billederne.");
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                    file = this.storeImage(bmp, file.getName());
-//                    BzImage bzImage = new BzImage(Uri.fromFile(file).toString(), imageInfo.getOrientation(), imageInfo.getPosition());
-//                    al.add(bzImage.toJSON());
-//                }
-//                return al;
-//            } catch (IOException e) {
-//                try {
-//                    asyncTaskError = e;
-//                    for (int i = 0; i < al.size(); i++) {
-//                        URI uri = new URI(new JSONObject(al.get(i)).getString("fileName"));
-//                        File file = new File(uri);
-//                        file.delete();
-//                    }
-//                } catch (Exception exception) {
-//                    // the finally does what we want to do
-//                } finally {
-//                    return new ArrayList<String>();
-//                }
-//            }
         }
 
         @Override
@@ -622,119 +605,5 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             progress.dismiss();
             finish();
         }
-/*
-        private Bitmap tryToGetBitmap(File file, BitmapFactory.Options options, int rotate, boolean shouldScale) throws IOException, OutOfMemoryError {
-            Bitmap bmp;
-            if (options == null) {
-                bmp = BitmapFactory.decodeFile(file.getAbsolutePath());
-            } else {
-                bmp = BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-            }
-            if (bmp == null) {
-                throw new IOException("Billedet kunne ikke åbnes.");
-            }
-            if (options != null && shouldScale) {
-                float scale = calculateScale(options.outWidth, options.outHeight);
-                bmp = this.getResizedBitmap(bmp, scale);
-            }
-            if (rotate != 0) {
-                Matrix matrix = new Matrix();
-                matrix.setRotate(rotate);
-                bmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
-            }
-            return bmp;
-        }
-*/
-        /*
-        * The following functions are originally from
-        * https://github.com/raananw/PhoneGap-Image-Resizer
-        * 
-        * They have been modified by Andrew Stephan for Sync OnSet
-        *
-        * The software is open source, MIT Licensed.
-        * Copyright (C) 2012, webXells GmbH All Rights Reserved.
-        */
-        /*
-        private File storeImage(Bitmap bmp, String fileName) throws IOException {
-            int index = fileName.lastIndexOf('.');
-            String name = fileName.substring(0, index);
-            String ext = fileName.substring(index);
-            File file = File.createTempFile("tmp_" + name, ext);
-            OutputStream outStream = new FileOutputStream(file);
-            if (ext.compareToIgnoreCase(".png") == 0) {
-                bmp.compress(Bitmap.CompressFormat.PNG, quality, outStream);
-            } else {
-                bmp.compress(Bitmap.CompressFormat.JPEG, quality, outStream);
-            }
-            outStream.flush();
-            outStream.close();
-            return file;
-        }
-
-        private Bitmap getResizedBitmap(Bitmap bm, float factor) {
-            int width = bm.getWidth();
-            int height = bm.getHeight();
-            // create a matrix for the manipulation
-            Matrix matrix = new Matrix();
-            // resize the bit map
-            matrix.postScale(factor, factor);
-            // recreate the new Bitmap
-            Bitmap resizedBitmap = Bitmap.createBitmap(bm, 0, 0, width, height, matrix, false);
-            return resizedBitmap;
-        }
-        */
     }
-/*
-    private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
-
-    private int calculateNextSampleSize(int sampleSize) {
-        double logBaseTwo = (int) (Math.log(sampleSize) / Math.log(2));
-        return (int) Math.pow(logBaseTwo + 1, 2);
-    }
-
-    private float calculateScale(int width, int height) {
-        float widthScale = 1.0f;
-        float heightScale = 1.0f;
-        float scale = 1.0f;
-        if (desiredWidth > 0 || desiredHeight > 0) {
-            if (desiredHeight == 0 && desiredWidth < width) {
-                scale = (float) desiredWidth / width;
-            } else if (desiredWidth == 0 && desiredHeight < height) {
-                scale = (float) desiredHeight / height;
-            } else {
-                if (desiredWidth > 0 && desiredWidth < width) {
-                    widthScale = (float) desiredWidth / width;
-                }
-                if (desiredHeight > 0 && desiredHeight < height) {
-                    heightScale = (float) desiredHeight / height;
-                }
-                if (widthScale < heightScale) {
-                    scale = widthScale;
-                } else {
-                    scale = heightScale;
-                }
-            }
-        }
-
-        return scale;
-    }
-    */
 }
