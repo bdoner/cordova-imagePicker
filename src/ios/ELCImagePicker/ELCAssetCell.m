@@ -8,6 +8,13 @@
 #import "ELCAssetCell.h"
 #import "ELCAsset.h"
 
+@interface ELCAssetCellSelectedView : UIView
+@property (nonatomic, strong) UILabel * label;
+@property (nonatomic, strong) UIView * border;
+@end
+@implementation ELCAssetCellSelectedView
+@end
+
 @interface ELCAssetCell ()
 
 @property (nonatomic, strong) NSArray *rowAssets;
@@ -17,6 +24,8 @@
 @end
 
 @implementation ELCAssetCell
+
+const int LABEL_SIZE = 20;
 
 //Using auto synthesizers
 
@@ -36,6 +45,11 @@
 	return self;
 }
 
+-(void)setTextOnOverlay:(ELCAsset*)asset overlayView:(ELCAssetCellSelectedView*)overlayView
+{
+    overlayView.label.text = [NSString stringWithFormat:@"%d", (int)[self.delegate getSelectedIndexForAsset:asset sender:self]];
+}
+
 - (void)setAssets:(NSArray *)assets
 {
     self.rowAssets = assets;
@@ -46,7 +60,7 @@
         [view removeFromSuperview];
 	}
     //set up a pointer here so we don't keep calling [UIImage imageNamed:] if creating overlays
-    UIImage *overlayImage = nil;
+    //UIImage *overlayImage = nil;
     for (int i = 0; i < [_rowAssets count]; ++i) {
 
         ELCAsset *asset = [_rowAssets objectAtIndex:i];
@@ -60,13 +74,27 @@
         }
         
         if (i < [_overlayViewArray count]) {
-            UIImageView *overlayView = [_overlayViewArray objectAtIndex:i];
+            ELCAssetCellSelectedView *overlayView = [_overlayViewArray objectAtIndex:i];
+            [self setTextOnOverlay:asset overlayView:overlayView];
             overlayView.hidden = asset.selected ? NO : YES;
         } else {
-            if (overlayImage == nil) {
-                overlayImage = [UIImage imageNamed:@"Overlay.png"];
-            }
-            UIImageView *overlayView = [[UIImageView alloc] initWithImage:overlayImage];
+            ELCAssetCellSelectedView *overlayView = [[ELCAssetCellSelectedView alloc] initWithFrame:CGRectZero];
+            overlayView.backgroundColor = [UIColor colorWithWhite:1.0f alpha:0.3f];
+            overlayView.label = [[UILabel alloc] initWithFrame:CGRectZero];
+            overlayView.label.backgroundColor = [UIColor colorWithRed:0.0f green:0.48f blue:1.0f alpha:1.0f];
+            overlayView.label.textColor = [UIColor whiteColor];
+            overlayView.label.textAlignment = NSTextAlignmentCenter;
+            
+            overlayView.border = [[UIView alloc] initWithFrame:CGRectZero];
+            overlayView.border.layer.borderColor = overlayView.label.backgroundColor.CGColor;
+            overlayView.border.layer.borderWidth = 5;
+            
+            [overlayView addSubview:overlayView.border];
+            [overlayView addSubview:overlayView.label];
+            
+            
+            [self setTextOnOverlay:asset overlayView:overlayView];
+            
             [_overlayViewArray addObject:overlayView];
             overlayView.hidden = asset.selected ? NO : YES;
         }
@@ -84,9 +112,11 @@
 	for (int i = 0; i < [_rowAssets count]; ++i) {
         if (CGRectContainsPoint(frame, point)) {
             ELCAsset *asset = [_rowAssets objectAtIndex:i];
+            [self.delegate didTapCell:asset sender:self];
             asset.selected = !asset.selected;
-            UIImageView *overlayView = [_overlayViewArray objectAtIndex:i];
+            ELCAssetCellSelectedView *overlayView = [_overlayViewArray objectAtIndex:i];
             overlayView.hidden = !asset.selected;
+            [self setTextOnOverlay:asset overlayView:overlayView];
             break;
         }
         frame.origin.x = frame.origin.x + frame.size.width + 4;
@@ -105,10 +135,13 @@
 		[imageView setFrame:frame];
 		[self addSubview:imageView];
         
-        UIImageView *overlayView = [_overlayViewArray objectAtIndex:i];
+        ELCAssetCellSelectedView *overlayView = [_overlayViewArray objectAtIndex:i];
         [overlayView setFrame:frame];
         [self addSubview:overlayView];
-		
+        
+        overlayView.border.frame = overlayView.bounds;
+        overlayView.label.frame = CGRectMake(frame.size.width - LABEL_SIZE, frame.size.height - LABEL_SIZE, LABEL_SIZE, LABEL_SIZE);
+        
 		frame.origin.x = frame.origin.x + frame.size.width + 4;
 	}
 }

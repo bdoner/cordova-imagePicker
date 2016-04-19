@@ -6,7 +6,7 @@
 //
 
 #import "ELCAssetTablePicker.h"
-#import "ELCAssetCell.h"
+
 #import "ELCAsset.h"
 #import "ELCAlbumPickerController.h"
 
@@ -35,6 +35,7 @@
 {
     [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
 	[self.tableView setAllowsSelection:NO];
+    self.selectedAssets = [NSMutableArray array];
 
     NSMutableArray *tempArray = [[NSMutableArray alloc] init];
     self.elcAssets = tempArray;
@@ -116,7 +117,7 @@
 {	
 	NSMutableArray *selectedAssetsImages = [[NSMutableArray alloc] init];
 	    
-	for (ELCAsset *elcAsset in self.elcAssets) {
+	for (ELCAsset *elcAsset in self.selectedAssets) {
 		if ([elcAsset selected]) {
 			[selectedAssetsImages addObject:[elcAsset asset]];
 		}
@@ -188,6 +189,7 @@
 
     if (cell == nil) {		        
         cell = [[ELCAssetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+        cell.delegate = self;
     }
     
     [cell setAssets:[self assetsForIndexPath:indexPath]];
@@ -212,6 +214,28 @@
     
     return count;
 }
+
+#pragma mark - ELCAssetCellDelegate
+
+
+-(NSInteger)getSelectedIndexForAsset:(ELCAsset*)asset sender:(ELCAssetCell*)cell
+{
+    return [self.selectedAssets indexOfObject:asset] + 1;
+}
+
+-(void)didTapCell:(ELCAsset*)asset sender:(ELCAssetCell*)cell
+{
+    if([self.selectedAssets containsObject:asset])
+    {
+        [self.selectedAssets removeObject:asset];
+    }
+    else
+    {
+        [self.selectedAssets addObject:asset];
+    }
+    [self.tableView reloadData];
+}
+
 
 
 @end

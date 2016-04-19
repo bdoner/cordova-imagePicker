@@ -95,21 +95,19 @@
             if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
                 result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
                 break;
-            } else {
-
-								NSMutableDictionary * json = [NSMutableDictionary dictionary];
-								[json setObject:[[NSURL fileURLWithPath:filePath] absoluteString] forKey:@"fileName"];
-								[json setObject:[NSString stringWithFormat:@"%d", counter++] forKey:@"position"];
-     						NSData *jsonData = [NSJSONSerialization dataWithJSONObject:json
-                                                   options:0
-                                                     error:&err];
-
-								if(!jsonData)
-								{
-									result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
-									break;
-								}
-								[resultStrings addObject:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
+            }
+            else
+            {
+                NSMutableDictionary * json = [NSMutableDictionary dictionary];
+                [json setObject:[[NSURL fileURLWithPath:filePath] absoluteString] forKey:@"fileName"];
+                [json setObject:[NSString stringWithFormat:@"%d", counter++] forKey:@"position"];
+                NSData *jsonData = [NSJSONSerialization dataWithJSONObject:json options:0 error:&err];
+                if(!jsonData)
+                {
+                    result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
+                    break;
+                }
+                [resultStrings addObject:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
 
                 //[resultStrings addObject:[[NSURL fileURLWithPath:filePath] absoluteString]];
             }

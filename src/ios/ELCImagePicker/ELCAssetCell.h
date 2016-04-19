@@ -6,10 +6,21 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "ELCAsset.h"
 
+@protocol ELCAssetCellDelegate;
 
 @interface ELCAssetCell : UITableViewCell
 
+@property (nonatomic, strong) NSObject<ELCAssetCellDelegate> * delegate;
+
 - (void)setAssets:(NSArray *)assets;
+
+@end
+
+@protocol ELCAssetCellDelegate <NSObject>
+
+-(NSInteger)getSelectedIndexForAsset:(ELCAsset*)asset sender:(ELCAssetCell*)cell;
+-(void)didTapCell:(ELCAsset*)asset sender:(ELCAssetCell*)cell;
 
 @end
