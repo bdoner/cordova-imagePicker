@@ -20,5 +20,7 @@
 @property (nonatomic, assign) NSInteger width;
 @property (nonatomic, assign) NSInteger height;
 @property (nonatomic, assign) NSInteger quality;
+@property (nonatomic, strong) UIAlertView * alertView;
+@property (nonatomic, assign) BOOL returnsOriginalImage;
 
 @end

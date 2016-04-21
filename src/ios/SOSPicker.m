@@ -38,7 +38,8 @@
 
    ELCImagePickerController *imagePicker = [[ELCImagePickerController alloc] initWithRootViewController:albumController];
    imagePicker.maximumImagesCount = maximumImagesCount;
-   imagePicker.returnsOriginalImage = 1;
+    self.returnsOriginalImage = YES;
+   imagePicker.returnsOriginalImage = self.returnsOriginalImage;
    imagePicker.imagePickerDelegate = self;
 
    albumController.parent = imagePicker;
@@ -49,10 +50,10 @@
 	                     completion:nil];
 }
 
-
-- (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info {
-	CDVPluginResult* result = nil;
-	NSMutableArray *resultStrings = [[NSMutableArray alloc] init];
+-(void)handleInfoObjects:(NSArray*)info
+{
+    CDVPluginResult* result = nil;
+    NSMutableArray *resultStrings = [[NSMutableArray alloc] init];
     NSData* data = nil;
     NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
     NSError* err = nil;
@@ -61,29 +62,29 @@
     ALAsset* asset = nil;
     UIImageOrientation orientation = UIImageOrientationUp;;
     CGSize targetSize = CGSizeMake(self.width, self.height);
-		int counter = 0;
-	for (NSDictionary *dict in info) {
+    int counter = 0;
+    for (NSDictionary *dict in info) {
         asset = [dict objectForKey:@"ALAsset"];
         // From ELCImagePickerController.m
-
+        
         int i = 1;
         do {
             filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, @"jpg"];
         } while ([fileMgr fileExistsAtPath:filePath]);
-
+        
         @autoreleasepool {
             ALAssetRepresentation *assetRep = [asset defaultRepresentation];
             CGImageRef imgRef = NULL;
-
+            
             //defaultRepresentation returns image as it appears in photo picker, rotated and sized,
             //so use UIImageOrientationUp when creating our image below.
-            if (picker.returnsOriginalImage) {
+            if (self.returnsOriginalImage) {
                 imgRef = [assetRep fullResolutionImage];
                 orientation = [assetRep orientation];
             } else {
                 imgRef = [assetRep fullScreenImage];
             }
-
+            
             UIImage* image = [UIImage imageWithCGImage:imgRef scale:1.0f orientation:orientation];
             if (self.width == 0 && self.height == 0) {
                 data = UIImageJPEGRepresentation(image, self.quality/100.0f);
@@ -91,7 +92,7 @@
                 UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toSize:targetSize];
                 data = UIImageJPEGRepresentation(scaledImage, self.quality/100.0f);
             }
-
+            
             if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
                 result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
                 break;
@@ -108,19 +109,78 @@
                     break;
                 }
                 [resultStrings addObject:[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]];
-
+                
                 //[resultStrings addObject:[[NSURL fileURLWithPath:filePath] absoluteString]];
             }
         }
+        
+    }
+    
+    if (nil == result) {
+        result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
+    }
+    [self performSelectorOnMainThread:@selector(doneWithResult:) withObject:result waitUntilDone:NO];
+}
 
-	}
+-(void)doneWithResult:(CDVPluginResult*)result
+{
+    [self.alertView dismissWithClickedButtonIndex:0 animated:YES];
+    [self.viewController dismissViewControllerAnimated:YES completion:nil];
+    [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
+}
 
-	if (nil == result) {
-		result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
-	}
 
-	[self.viewController dismissViewControllerAnimated:YES completion:nil];
-	[self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
+- (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info {
+    
+    self.alertView = [self alertViewWithActivityIndicator:@"Behandler" delegate:self];
+    [self.alertView show];
+    
+    
+    /*[[UIAlertView alloc] initWithTitle:@"Behandler" message:nil delegate:self cancelButtonTitle:nil otherButtonTitles:nil, nil];
+    
+    UIActivityIndicatorView *indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [indicator startAnimating];
+    indicator.center = self.viewController.view.center;
+    
+    [self.alertView setValue:indicator forKey:@"accessoryView"];
+    
+    [self.alertView show];*/
+    
+    
+    
+    [self performSelectorInBackground:@selector(handleInfoObjects:) withObject:info];
+}
+
+- (UIAlertView *)alertViewWithActivityIndicator:(NSString *)title delegate:(id<UIAlertViewDelegate>)delegate;
+{
+    UIAlertView *a = [[UIAlertView alloc] initWithTitle:title
+                                                message:nil
+                                               delegate:delegate
+                                      cancelButtonTitle:nil
+                                      otherButtonTitles:nil];
+    
+    UIView *v = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 50, 50)];
+    UIActivityIndicatorView *aiv = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    aiv.translatesAutoresizingMaskIntoConstraints = NO;
+    [v addSubview:aiv];
+    [v addConstraint:[NSLayoutConstraint constraintWithItem:aiv
+                                                  attribute:NSLayoutAttributeCenterX
+                                                  relatedBy:NSLayoutRelationEqual
+                                                     toItem:v
+                                                  attribute:NSLayoutAttributeCenterX
+                                                 multiplier:1.0
+                                                   constant:0]];
+    [v addConstraint:[NSLayoutConstraint constraintWithItem:aiv
+                                                  attribute:NSLayoutAttributeCenterY
+                                                  relatedBy:NSLayoutRelationEqual
+                                                     toItem:v
+                                                  attribute:NSLayoutAttributeCenterY
+                                                 multiplier:1.0
+                                                   constant:0]];
+    [aiv startAnimating];
+    [a setValue:v forKey:@"accessoryView"];
+    
+    return a;
 }
 
 - (void)elcImagePickerControllerDidCancel:(ELCImagePickerController *)picker {
