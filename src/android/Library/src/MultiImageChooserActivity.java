@@ -90,7 +90,7 @@ import android.widget.TextView;
 
 import org.json.JSONObject;
 
-import dk.bazoom.horseclassifieds.Manifest;
+import dk.bazoom.ridr.Manifest;
 
 public class MultiImageChooserActivity extends Activity implements OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
     private static final String TAG = "ImagePicker";
